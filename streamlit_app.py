@@ -27,8 +27,11 @@ df = load_data()
 # ----------------------
 st.sidebar.title("Filters")
 
+# This should be FIRST before any filter widgets
 if st.sidebar.button("Reset Filters"):
+    st.cache_data.clear()  # Optional: clear cached data if needed
     st.experimental_rerun()
+
 
 priorities = st.sidebar.multiselect("Select Priority", options=df["Priority"].unique(), default=df["Priority"].unique())
 assignees = st.sidebar.multiselect("Select Assignee", options=df["Assign To"].unique(), default=df["Assign To"].unique())

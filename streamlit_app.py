@@ -23,9 +23,12 @@ def load_data():
 df = load_data()
 
 # ----------------------
-# Sidebar Filters
+# Sidebar Filters with Reset
 # ----------------------
 st.sidebar.title("Filters")
+
+if st.sidebar.button("Reset Filters"):
+    st.experimental_rerun()
 
 priorities = st.sidebar.multiselect("Select Priority", options=df["Priority"].unique(), default=df["Priority"].unique())
 assignees = st.sidebar.multiselect("Select Assignee", options=df["Assign To"].unique(), default=df["Assign To"].unique())
@@ -88,6 +91,33 @@ with chart_col2:
         title="Resolution SLA Compliance by Priority"
     )
     st.plotly_chart(resolution_fig, use_container_width=True)
+
+# ----------------------
+# SLA Compliance by Sub Category
+# ----------------------
+if "Sub Category" in filtered_df.columns:
+    st.subheader("SLA Compliance by Sub Category")
+    sub_col1, sub_col2 = st.columns(2)
+
+    with sub_col1:
+        sub_respond_fig = px.histogram(
+            filtered_df,
+            x="Sub Category",
+            color="SLA_Respond_Status",
+            barmode="group",
+            title="Response SLA by Sub Category"
+        )
+        st.plotly_chart(sub_respond_fig, use_container_width=True)
+
+    with sub_col2:
+        sub_resolution_fig = px.histogram(
+            filtered_df,
+            x="Sub Category",
+            color="SLA_Resolution_Status",
+            barmode="group",
+            title="Resolution SLA by Sub Category"
+        )
+        st.plotly_chart(sub_resolution_fig, use_container_width=True)
 
 # ----------------------
 # Average Times by Priority

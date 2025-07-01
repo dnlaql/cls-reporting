@@ -58,24 +58,27 @@ with right_col:
 # Charts
 # ----------------------
 st.subheader("SLA Compliance by Priority")
-respond_fig = px.histogram(
-    filtered_df,
-    x="Priority",
-    color="SLA_Respond_Status",
-    barmode="group",
-    title="Response SLA Compliance by Priority"
-)
+chart_col1, chart_col2 = st.columns(2)
 
-resolution_fig = px.histogram(
-    filtered_df,
-    x="Priority",
-    color="SLA_Resolution_Status",
-    barmode="group",
-    title="Resolution SLA Compliance by Priority"
-)
+with chart_col1:
+    respond_fig = px.histogram(
+        filtered_df,
+        x="Priority",
+        color="SLA_Respond_Status",
+        barmode="group",
+        title="Response SLA Compliance by Priority"
+    )
+    st.plotly_chart(respond_fig, use_container_width=True)
 
-st.plotly_chart(respond_fig, use_container_width=True)
-st.plotly_chart(resolution_fig, use_container_width=True)
+with chart_col2:
+    resolution_fig = px.histogram(
+        filtered_df,
+        x="Priority",
+        color="SLA_Resolution_Status",
+        barmode="group",
+        title="Resolution SLA Compliance by Priority"
+    )
+    st.plotly_chart(resolution_fig, use_container_width=True)
 
 # ----------------------
 # Average Times by Priority
@@ -99,6 +102,24 @@ breach_count.columns = ["Assign To", "SLA Breaches"]
 
 breach_fig = px.bar(breach_count, x="Assign To", y="SLA Breaches", title="SLA Breach Count by Assignee")
 st.plotly_chart(breach_fig, use_container_width=True)
+
+# ----------------------
+# SLA Status Pie Charts
+# ----------------------
+st.subheader("SLA Status Distribution")
+pie_col1, pie_col2 = st.columns(2)
+
+with pie_col1:
+    response_pie = filtered_df["SLA_Respond_Status"].value_counts().reset_index()
+    response_pie.columns = ["Status", "Count"]
+    response_pie_fig = px.pie(response_pie, names="Status", values="Count", title="SLA Response PASS vs FAIL")
+    st.plotly_chart(response_pie_fig, use_container_width=True)
+
+with pie_col2:
+    resolution_pie = filtered_df["SLA_Resolution_Status"].value_counts().reset_index()
+    resolution_pie.columns = ["Status", "Count"]
+    resolution_pie_fig = px.pie(resolution_pie, names="Status", values="Count", title="SLA Resolution PASS vs FAIL")
+    st.plotly_chart(resolution_pie_fig, use_container_width=True)
 
 # ----------------------
 # Data Table

@@ -27,7 +27,7 @@ df = load_data()
 # ----------------------
 
 # Add logo to sidebar
-st.sidebar.image("https://hctm.ukm.my/ent/wp-content/uploads/2022/11/3LOGOS-HCTM-web.png", use_container_width=True)
+st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png", use_container_width=True)
 
 # Initialize session state on first run
 if 'initialized' not in st.session_state:
@@ -35,6 +35,7 @@ if 'initialized' not in st.session_state:
     st.session_state['assignees'] = df["Assign To"].unique().tolist()
     st.session_state['date_range'] = [df["Date Created"].min().date(), df["Date Created"].max().date()]
     st.session_state['subcategories'] = df["Sub Category"].dropna().unique().tolist() if "Sub Category" in df.columns else []
+    st.session_state['sla_status'] = ["PASS", "FAIL"]
     st.session_state['reset'] = False
     st.session_state['initialized'] = True
 
@@ -46,11 +47,15 @@ if st.sidebar.button("Reset Filters"):
     st.session_state['assignees'] = df["Assign To"].unique().tolist()
     st.session_state['date_range'] = [df["Date Created"].min().date(), df["Date Created"].max().date()]
     st.session_state['subcategories'] = df["Sub Category"].dropna().unique().tolist() if "Sub Category" in df.columns else []
+    st.session_state['sla_status'] = ["PASS", "FAIL"]
     st.session_state['reset'] = True
 
 priorities = st.sidebar.multiselect("Select Priority", options=df["Priority"].unique(), default=st.session_state['priorities'], key='priorities')
 assignees = st.sidebar.multiselect("Select Assignee", options=df["Assign To"].unique(), default=st.session_state['assignees'], key='assignees')
 date_range = st.sidebar.date_input("Select Date Range", value=st.session_state['date_range'], key='date_range')
+
+# SLA Status Filter
+sla_status_filter = st.sidebar.multiselect("SLA Status (PASS/FAIL)", options=["PASS", "FAIL"], default=st.session_state['sla_status'], key='sla_status')
 
 # Add Sub Category Filter if available
 if "Sub Category" in df.columns:
@@ -63,7 +68,9 @@ filtered_df = df[
     (df["Priority"].isin(priorities)) &
     (df["Assign To"].isin(assignees)) &
     (df["Date Created"].dt.date >= date_range[0]) &
-    (df["Date Created"].dt.date <= date_range[1])
+    (df["Date Created"].dt.date <= date_range[1]) &
+    (df["SLA_Respond_Status"].isin(sla_status_filter)) &
+    (df["SLA_Resolution_Status"].isin(sla_status_filter))
 ]
 
 if "Sub Category" in df.columns:

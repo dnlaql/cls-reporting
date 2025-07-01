@@ -26,6 +26,9 @@ df = load_data()
 # Sidebar Filters with Reset
 # ----------------------
 
+# Add logo to sidebar
+st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png", use_column_width=True)
+
 # Initialize session state on first run
 if 'initialized' not in st.session_state:
     st.session_state['priorities'] = df["Priority"].unique().tolist()
@@ -67,24 +70,31 @@ if "Sub Category" in df.columns:
     filtered_df = filtered_df[filtered_df["Sub Category"].isin(subcategories)]
 
 # ----------------------
+# Page Title and Description
+# ----------------------
+st.title("📊 SLA Dashboard for Cleansing Team")
+st.markdown("""
+This dashboard provides real-time insights into **Service Level Agreement (SLA)** performance for the Cleansing (CLS) team.
+It helps to monitor and analyze work orders based on response and resolution compliance.
+""")
+
+# ----------------------
 # KPI Cards (Vertical Style)
 # ----------------------
-st.title("SLA Dashboard for Cleansing (CLS)")
-
 left_col, right_col = st.columns(2)
 
 with left_col:
-    st.metric("Total Work Orders", len(filtered_df))
-    st.metric("Avg Response Time (min)", round(filtered_df["Response Time (min)"].mean(), 2))
+    st.metric("📋 Total Work Orders", len(filtered_df))
+    st.metric("⏱️ Avg Response Time (min)", round(filtered_df["Response Time (min)"].mean(), 2))
 
 with right_col:
-    st.metric("SLA Response PASS %", f"{(filtered_df['SLA_Respond_Met'] == True).mean() * 100:.1f}%")
-    st.metric("SLA Resolution PASS %", f"{(filtered_df['SLA_Resolution_Met'] == True).mean() * 100:.1f}%")
+    st.metric("✅ SLA Response PASS %", f"{(filtered_df['SLA_Respond_Met'] == True).mean() * 100:.1f}%")
+    st.metric("✅ SLA Resolution PASS %", f"{(filtered_df['SLA_Resolution_Met'] == True).mean() * 100:.1f}%")
 
 # ----------------------
 # Charts
 # ----------------------
-st.subheader("SLA Compliance by Priority")
+st.subheader("📌 SLA Compliance by Priority")
 chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
@@ -93,7 +103,7 @@ with chart_col1:
         x="Priority",
         color="SLA_Respond_Status",
         barmode="group",
-        title="Response SLA Compliance by Priority"
+        title="🟡 Response SLA Compliance by Priority"
     )
     st.plotly_chart(respond_fig, use_container_width=True)
 
@@ -103,7 +113,7 @@ with chart_col2:
         x="Priority",
         color="SLA_Resolution_Status",
         barmode="group",
-        title="Resolution SLA Compliance by Priority"
+        title="🔵 Resolution SLA Compliance by Priority"
     )
     st.plotly_chart(resolution_fig, use_container_width=True)
 
@@ -111,7 +121,7 @@ with chart_col2:
 # SLA Compliance by Sub Category
 # ----------------------
 if "Sub Category" in filtered_df.columns:
-    st.subheader("SLA Compliance by Sub Category")
+    st.subheader("📌 SLA Compliance by Sub Category")
     sub_col1, sub_col2 = st.columns(2)
 
     with sub_col1:
@@ -120,7 +130,7 @@ if "Sub Category" in filtered_df.columns:
             x="Sub Category",
             color="SLA_Respond_Status",
             barmode="group",
-            title="Response SLA by Sub Category"
+            title="🟡 Response SLA by Sub Category"
         )
         st.plotly_chart(sub_respond_fig, use_container_width=True)
 
@@ -130,53 +140,53 @@ if "Sub Category" in filtered_df.columns:
             x="Sub Category",
             color="SLA_Resolution_Status",
             barmode="group",
-            title="Resolution SLA by Sub Category"
+            title="🔵 Resolution SLA by Sub Category"
         )
         st.plotly_chart(sub_resolution_fig, use_container_width=True)
 
 # ----------------------
 # Average Times by Priority
 # ----------------------
-st.subheader("Average Times by Priority")
+st.subheader("⏳ Average Times by Priority")
 time_df = filtered_df.groupby("Priority")[["Response Time (min)", "Resolution Time (min)"]].mean().reset_index()
 time_fig = px.bar(
     time_df.melt(id_vars="Priority", var_name="Metric", value_name="Minutes"),
     x="Priority", y="Minutes", color="Metric", barmode="group",
-    title="Average Response & Resolution Time by Priority"
+    title="⏱️ Avg Response & Resolution Time by Priority"
 )
 st.plotly_chart(time_fig, use_container_width=True)
 
 # ----------------------
 # SLA Breach by Assignee
 # ----------------------
-st.subheader("SLA Breaches by Assignee")
+st.subheader("🚨 SLA Breaches by Assignee")
 breach_df = filtered_df[(filtered_df["SLA_Respond_Met"] == False) | (filtered_df["SLA_Resolution_Met"] == False)]
 breach_count = breach_df["Assign To"].value_counts().reset_index()
 breach_count.columns = ["Assign To", "SLA Breaches"]
 
-breach_fig = px.bar(breach_count, x="Assign To", y="SLA Breaches", title="SLA Breach Count by Assignee")
+breach_fig = px.bar(breach_count, x="Assign To", y="SLA Breaches", title="🚨 SLA Breach Count by Assignee")
 st.plotly_chart(breach_fig, use_container_width=True)
 
 # ----------------------
 # SLA Status Pie Charts
 # ----------------------
-st.subheader("SLA Status Distribution")
+st.subheader("📊 SLA Status Distribution")
 pie_col1, pie_col2 = st.columns(2)
 
 with pie_col1:
     response_pie = filtered_df["SLA_Respond_Status"].value_counts().reset_index()
     response_pie.columns = ["Status", "Count"]
-    response_pie_fig = px.pie(response_pie, names="Status", values="Count", title="SLA Response PASS vs FAIL")
+    response_pie_fig = px.pie(response_pie, names="Status", values="Count", title="🟡 SLA Response: PASS vs FAIL")
     st.plotly_chart(response_pie_fig, use_container_width=True)
 
 with pie_col2:
     resolution_pie = filtered_df["SLA_Resolution_Status"].value_counts().reset_index()
     resolution_pie.columns = ["Status", "Count"]
-    resolution_pie_fig = px.pie(resolution_pie, names="Status", values="Count", title="SLA Resolution PASS vs FAIL")
+    resolution_pie_fig = px.pie(resolution_pie, names="Status", values="Count", title="🔵 SLA Resolution: PASS vs FAIL")
     st.plotly_chart(resolution_pie_fig, use_container_width=True)
 
 # ----------------------
 # Data Table
 # ----------------------
-st.subheader("Detailed Work Orders Table")
+st.subheader("📝 Detailed Work Orders Table")
 st.dataframe(filtered_df, use_container_width=True)

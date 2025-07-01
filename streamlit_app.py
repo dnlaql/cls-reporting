@@ -31,11 +31,11 @@ priorities = st.sidebar.multiselect("Select Priority", options=df["Priority"].un
 assignees = st.sidebar.multiselect("Select Assignee", options=df["Assign To"].unique(), default=df["Assign To"].unique())
 date_range = st.sidebar.date_input("Select Date Range", [df["Date Created"].min(), df["Date Created"].max()])
 
-# Add Subcategory Filter if available
-if "Subcategory" in df.columns:
-    subcategories = st.sidebar.multiselect("Select Subcategory", options=df["Subcategory"].dropna().unique(), default=df["Subcategory"].dropna().unique())
+# Add Sub Category Filter if available
+if "Sub Category" in df.columns:
+    subcategories = st.sidebar.multiselect("Select Sub Category", options=df["Sub Category"].dropna().unique(), default=df["Sub Category"].dropna().unique())
 else:
-    subcategories = df["Subcategory"].dropna().unique() if "Subcategory" in df.columns else []
+    subcategories = []
 
 # Filter data
 filtered_df = df[
@@ -45,8 +45,8 @@ filtered_df = df[
     (df["Date Created"].dt.date <= date_range[1])
 ]
 
-if "Subcategory" in df.columns:
-    filtered_df = filtered_df[filtered_df["Subcategory"].isin(subcategories)]
+if "Sub Category" in df.columns:
+    filtered_df = filtered_df[filtered_df["Sub Category"].isin(subcategories)]
 
 # ----------------------
 # KPI Cards (Vertical Style)

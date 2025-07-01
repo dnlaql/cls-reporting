@@ -27,7 +27,7 @@ df = load_data()
 # ----------------------
 
 # Add logo to sidebar
-st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png", use_container_width=True)
+st.sidebar.image("https://hctm.ukm.my/ent/wp-content/uploads/2022/11/3LOGOS-HCTM-web.png", use_container_width=True)
 
 # Initialize session state on first run
 if 'initialized' not in st.session_state:

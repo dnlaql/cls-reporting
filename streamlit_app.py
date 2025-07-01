@@ -27,7 +27,7 @@ df = load_data()
 # ----------------------
 
 # Add logo to sidebar
-st.sidebar.image("https://hctm.ukm.my/ent/wp-content/uploads/2022/11/3LOGOS-HCTM-web.png", use_container_width=True)
+st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png", use_container_width=True)
 
 # Initialize session state on first run
 if 'initialized' not in st.session_state:
@@ -191,6 +191,24 @@ with pie_col2:
     resolution_pie.columns = ["Status", "Count"]
     resolution_pie_fig = px.pie(resolution_pie, names="Status", values="Count", title="🔵 SLA Resolution: PASS vs FAIL")
     st.plotly_chart(resolution_pie_fig, use_container_width=True)
+
+# ----------------------
+# Monthly SLA Resolution Compliance Only
+# ----------------------
+st.subheader("📅 Monthly SLA Resolution Compliance (%)")
+
+monthly_df = filtered_df.copy()
+monthly_df['Month'] = monthly_df['Date Created'].dt.to_period('M')
+
+monthly_compliance = monthly_df.groupby('Month').apply(
+    lambda x: pd.Series({
+        'Total Work Orders': len(x),
+        'Met Resolution SLA': x['SLA_Resolution_Met'].sum(),
+        'Resolution SLA Compliance %': (x['SLA_Resolution_Met'].sum() / len(x)) * 100
+    })
+).reset_index()
+
+st.dataframe(monthly_compliance, use_container_width=True)
 
 # ----------------------
 # Data Table

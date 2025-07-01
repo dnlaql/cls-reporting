@@ -69,7 +69,7 @@ if "Sub Category" in df.columns:
 # ----------------------
 # KPI Cards (Vertical Style)
 # ----------------------
-st.title("Work Order SLA Dashboard")
+st.title("SLA Dashboard for Cleansing (CLS)")
 
 left_col, right_col = st.columns(2)
 

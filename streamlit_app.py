@@ -40,16 +40,19 @@ filtered_df = df[
 ]
 
 # ----------------------
-# KPI Cards
+# KPI Cards (Vertical Style)
 # ----------------------
 st.title("Work Order SLA Dashboard")
 
-col1, col2, col3, col4 = st.columns(4)
+left_col, right_col = st.columns(2)
 
-col1.metric("Total Work Orders", len(filtered_df))
-col2.metric("Avg Response Time (min)", round(filtered_df["Response Time (min)"].mean(), 2))
-col3.metric("SLA Response PASS %", f"{(filtered_df['SLA_Respond_Met'] == True).mean() * 100:.1f}%")
-col4.metric("SLA Resolution PASS %", f"{(filtered_df['SLA_Resolution_Met'] == True).mean() * 100:.1f}%")
+with left_col:
+    st.metric("Total Work Orders", len(filtered_df))
+    st.metric("Avg Response Time (min)", round(filtered_df["Response Time (min)"].mean(), 2))
+
+with right_col:
+    st.metric("SLA Response PASS %", f"{(filtered_df['SLA_Respond_Met'] == True).mean() * 100:.1f}%")
+    st.metric("SLA Resolution PASS %", f"{(filtered_df['SLA_Resolution_Met'] == True).mean() * 100:.1f}%")
 
 # ----------------------
 # Charts

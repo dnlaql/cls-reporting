@@ -25,21 +25,32 @@ df = load_data()
 # ----------------------
 # Sidebar Filters with Reset
 # ----------------------
+
+# Initialize session state on first run
+if 'initialized' not in st.session_state:
+    st.session_state['priorities'] = df["Priority"].unique().tolist()
+    st.session_state['assignees'] = df["Assign To"].unique().tolist()
+    st.session_state['date_range'] = [df["Date Created"].min().date(), df["Date Created"].max().date()]
+    st.session_state['subcategories'] = df["Sub Category"].dropna().unique().tolist() if "Sub Category" in df.columns else []
+    st.session_state['initialized'] = True
+
 st.sidebar.title("Filters")
 
-# This should be FIRST before any filter widgets
+# Reset Filters
 if st.sidebar.button("Reset Filters"):
-    st.cache_data.clear()  # Optional: clear cached data if needed
+    st.session_state['priorities'] = df["Priority"].unique().tolist()
+    st.session_state['assignees'] = df["Assign To"].unique().tolist()
+    st.session_state['date_range'] = [df["Date Created"].min().date(), df["Date Created"].max().date()]
+    st.session_state['subcategories'] = df["Sub Category"].dropna().unique().tolist() if "Sub Category" in df.columns else []
     st.experimental_rerun()
 
-
-priorities = st.sidebar.multiselect("Select Priority", options=df["Priority"].unique(), default=df["Priority"].unique())
-assignees = st.sidebar.multiselect("Select Assignee", options=df["Assign To"].unique(), default=df["Assign To"].unique())
-date_range = st.sidebar.date_input("Select Date Range", [df["Date Created"].min(), df["Date Created"].max()])
+priorities = st.sidebar.multiselect("Select Priority", options=df["Priority"].unique(), default=st.session_state['priorities'], key='priorities')
+assignees = st.sidebar.multiselect("Select Assignee", options=df["Assign To"].unique(), default=st.session_state['assignees'], key='assignees')
+date_range = st.sidebar.date_input("Select Date Range", value=st.session_state['date_range'], key='date_range')
 
 # Add Sub Category Filter if available
 if "Sub Category" in df.columns:
-    subcategories = st.sidebar.multiselect("Select Sub Category", options=df["Sub Category"].dropna().unique(), default=df["Sub Category"].dropna().unique())
+    subcategories = st.sidebar.multiselect("Select Sub Category", options=df["Sub Category"].dropna().unique(), default=st.session_state['subcategories'], key='subcategories')
 else:
     subcategories = []
 

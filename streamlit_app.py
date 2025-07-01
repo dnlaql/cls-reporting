@@ -13,6 +13,11 @@ def load_data():
     # Convert date columns
     df["Date Created"] = pd.to_datetime(df["Date Created"], errors='coerce')
     df["To Do Dt"] = pd.to_datetime(df["To Do Dt"], errors='coerce')
+
+    # Map boolean to PASS/FAIL
+    df["SLA_Respond_Status"] = df["SLA_Respond_Met"].map({True: "PASS", False: "FAIL"})
+    df["SLA_Resolution_Status"] = df["SLA_Resolution_Met"].map({True: "PASS", False: "FAIL"})
+
     return df
 
 df = load_data()
@@ -43,8 +48,8 @@ col1, col2, col3, col4 = st.columns(4)
 
 col1.metric("Total Work Orders", len(filtered_df))
 col2.metric("Avg Response Time (min)", round(filtered_df["Response Time (min)"].mean(), 2))
-col3.metric("SLA Response PASS %", f"{(filtered_df['SLA_Respond_Status'] == 'PASS').mean() * 100:.1f}%")
-col4.metric("SLA Resolution PASS %", f"{(filtered_df['SLA_Resolution_Status'] == 'PASS').mean() * 100:.1f}%")
+col3.metric("SLA Response PASS %", f"{(filtered_df['SLA_Respond_Met'] == True).mean() * 100:.1f}%")
+col4.metric("SLA Resolution PASS %", f"{(filtered_df['SLA_Resolution_Met'] == True).mean() * 100:.1f}%")
 
 # ----------------------
 # Charts
@@ -85,7 +90,7 @@ st.plotly_chart(time_fig, use_container_width=True)
 # SLA Breach by Assignee
 # ----------------------
 st.subheader("SLA Breaches by Assignee")
-breach_df = filtered_df[(filtered_df["SLA_Respond_Status"] == "FAIL") | (filtered_df["SLA_Resolution_Status"] == "FAIL")]
+breach_df = filtered_df[(filtered_df["SLA_Respond_Met"] == False) | (filtered_df["SLA_Resolution_Met"] == False)]
 breach_count = breach_df["Assign To"].value_counts().reset_index()
 breach_count.columns = ["Assign To", "SLA Breaches"]
 

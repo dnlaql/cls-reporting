@@ -32,6 +32,7 @@ if 'initialized' not in st.session_state:
     st.session_state['assignees'] = df["Assign To"].unique().tolist()
     st.session_state['date_range'] = [df["Date Created"].min().date(), df["Date Created"].max().date()]
     st.session_state['subcategories'] = df["Sub Category"].dropna().unique().tolist() if "Sub Category" in df.columns else []
+    st.session_state['reset'] = False
     st.session_state['initialized'] = True
 
 st.sidebar.title("Filters")
@@ -42,7 +43,7 @@ if st.sidebar.button("Reset Filters"):
     st.session_state['assignees'] = df["Assign To"].unique().tolist()
     st.session_state['date_range'] = [df["Date Created"].min().date(), df["Date Created"].max().date()]
     st.session_state['subcategories'] = df["Sub Category"].dropna().unique().tolist() if "Sub Category" in df.columns else []
-    st.experimental_rerun()
+    st.session_state['reset'] = True
 
 priorities = st.sidebar.multiselect("Select Priority", options=df["Priority"].unique(), default=st.session_state['priorities'], key='priorities')
 assignees = st.sidebar.multiselect("Select Assignee", options=df["Assign To"].unique(), default=st.session_state['assignees'], key='assignees')
